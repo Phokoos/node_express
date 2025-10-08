@@ -1,20 +1,19 @@
-// const createError = require('http-errors');
 import createError from 'http-errors';
-// const express = require('express');
 import express from 'express';
-// const path = require('path');
 import path from 'path';
-// const cookieParser = require('cookie-parser');
 import cookieParser from 'cookie-parser';
-// const logger = require('morgan');
 import logger from 'morgan';
+import dotenv from 'dotenv';
 
-// const indexRouter = require('./routes/index');
+
 import indexRouter from './routes/index.js';
-// const usersRouter = require('./routes/users');
 import usersRouter from './routes/users.js';
+import authMiddleware from "./middleware/basic-auth.js";
 
 const app = express();
+
+// Load env vars
+dotenv.config();
 
 // view engine setup
 app.set('views', path.resolve( 'views'));
@@ -25,6 +24,11 @@ app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.resolve('public')));
+
+// Basic Auth Middleware
+app.use(authMiddleware)
+
+
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
@@ -38,7 +42,7 @@ app.use(function (req, res, next) {
 app.use(function (err, req, res, next) {
     // set locals, only providing error in development
     res.locals.message = err.message;
-    res.locals.error = req.app.get('env') === 'development' ? err : {};
+    res.locals.error = process.env.NODE_ENV === 'development' ? err : {};
 
     // render the error page
     res.status(err.status || 500);
