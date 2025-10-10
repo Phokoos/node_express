@@ -5,6 +5,8 @@ import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import dotenv from 'dotenv';
 
+import crypto from 'crypto';
+import bcrypt from 'bcrypt';
 
 import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
@@ -28,7 +30,33 @@ app.use(express.static(path.resolve('public')));
 // Basic Auth Middleware
 app.use(authMiddleware)
 
+// Example of using crypto to create an MD5 hash
+// const hash = crypto.createHash('md5').update('some_string').digest("hex")
 
+// Test bcrypt hashing
+const saltRounds = 10;
+const myPlaintextPassword = 'password';
+const someOtherPlaintextPassword = 'not_bacon';
+
+try {
+    // Generate hash using promise-based API
+    console.time('bcrypt hash time');
+    let hashedPassword = await bcrypt.hash(myPlaintextPassword, saltRounds);
+    console.log(1);
+    console.log('hash', hashedPassword);
+    console.timeEnd('bcrypt hash time');
+
+    // Load hash from your password DB and compare
+    const result1 = await bcrypt.compare(myPlaintextPassword, hashedPassword);
+    console.log(2);
+    console.log(result1);
+
+    const result2 = await bcrypt.compare(someOtherPlaintextPassword, hashedPassword);
+    console.log(3);
+    console.log(result2);
+} catch (err) {
+    console.error('bcrypt demo error:', err);
+}
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
