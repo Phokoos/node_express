@@ -12,13 +12,16 @@ import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
 import authMiddleware from "./middleware/basic-auth.js";
 
+// Redis
+import {createClient} from 'redis';
+
 const app = express();
 
 // Load env vars
 dotenv.config();
 
 // view engine setup
-app.set('views', path.resolve( 'views'));
+app.set('views', path.resolve('views'));
 app.set('view engine', 'ejs');
 
 app.use(logger('dev'));
@@ -40,23 +43,36 @@ const someOtherPlaintextPassword = 'not_bacon';
 
 try {
     // Generate hash using promise-based API
-    console.time('bcrypt hash time');
+    // console.time('bcrypt hash time');
     let hashedPassword = await bcrypt.hash(myPlaintextPassword, saltRounds);
-    console.log(1);
-    console.log('hash', hashedPassword);
-    console.timeEnd('bcrypt hash time');
+    // console.log(1);
+    // console.log('hash', hashedPassword);
+    // console.timeEnd('bcrypt hash time');
 
     // Load hash from your password DB and compare
     const result1 = await bcrypt.compare(myPlaintextPassword, hashedPassword);
-    console.log(2);
-    console.log(result1);
+    // console.log(2);
+    // console.log(result1);
 
     const result2 = await bcrypt.compare(someOtherPlaintextPassword, hashedPassword);
-    console.log(3);
-    console.log(result2);
+    // console.log(3);
+    // console.log(result2);
 } catch (err) {
     console.error('bcrypt demo error:', err);
 }
+
+// Connect to Redis
+// const client = createClient();
+// client.on('error', err => console.log('Redis Client Error', err));
+// await client.connect();
+// await client.set('node', 'node_value', {
+//     EX: 3, // seconds
+// });
+// const value = await client.get('node');
+// console.log('Node Value:', value);
+// // close connection
+// await client.quit();
+
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
